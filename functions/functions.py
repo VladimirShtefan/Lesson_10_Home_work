@@ -2,42 +2,38 @@ from json import load
 from os.path import join, abspath
 
 
-def load_json(file_name: str) -> list:
-    with open(file_name) as file:
+def load_json() -> list[dict]:
+    path_file = abspath(join('files', 'candidates.json'))
+    with open(path_file) as file:
         data = load(file)
     return data
 
 
-path_file = abspath(join('files', 'candidates.json'))
-DATA = load_json(path_file)
-
-
-def get_candidates() -> str:
-    answer = ''
-    for line in DATA:
-        answer += f'Имя кандидата - {line["name"]}\n' \
-                  f'Позиция кандидата - {line["position"]}\n' \
-                  f'Навыки - {line["skills"]}\n\n'
+def get_candidates(candidates: list[dict]) -> str:
+    answer = '<pre>\n'
+    for candidate in candidates:
+        answer += f'Имя кандидата - {candidate["name"]}\n' \
+                  f'Позиция кандидата - {candidate["position"]}\n' \
+                  f'Навыки - {candidate["skills"]}\n\n'
+    answer += '<pre>'
     return answer
 
 
-def get_candidates_for_id(uid: int) -> str:
-    answer = ''
-    for line in DATA:
-        if line["id"] == uid:
-            answer += f'<img src = "www.ya.ru/{uid}">\n\n' \
-                      f'<pre>\nИмя кандидата - {line["name"]}\n' \
-                      f'Позиция кандидата - {line["position"]}\n' \
-                      f'Навыки - {line["skills"]}\n<pre>'
-            return answer
-    return ''
+def get_all_candidates() -> list[dict]:
+    return load_json()
 
 
-def get_candidates_for_skill(skill: str) -> str:
-    answer = ''
-    for line in DATA:
-        if skill.lower() in map(str.lower, line["skills"].split(',')):
-            answer += f'Имя кандидата - {line["name"]}\n' \
-                      f'Позиция кандидата - {line["position"]}\n' \
-                      f'Навыки - {line["skills"]}\n\n'
+def get_candidates_for_id(uid: int) -> dict | None:
+    candidates = get_all_candidates()
+    for candidate in candidates:
+        if candidate["id"] == uid:
+            return candidate
+
+
+def get_candidates_for_skill(skill: str) -> list[dict]:
+    answer = []
+    candidates = get_all_candidates()
+    for candidate in candidates:
+        if skill in candidate["skills"].lower().split(', '):
+            answer.append(candidate)
     return answer

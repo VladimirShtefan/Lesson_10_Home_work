@@ -1,5 +1,5 @@
 from flask import Flask
-from functions.functions import get_candidates, get_candidates_for_id, get_candidates_for_skill
+from functions.functions import get_all_candidates, get_candidates_for_id, get_candidates_for_skill, get_candidates
 
 # создаем экземпляр Flask
 app = Flask(__name__)
@@ -12,7 +12,8 @@ def page_home():
     Returns:
         str answer
     """
-    return '<pre>\n' + get_candidates() + '<pre>'
+    candidates: list[dict] = get_all_candidates()
+    return get_candidates(candidates)
 
 
 @app.route('/candidates/<int:uid>/')
@@ -25,7 +26,10 @@ def page_candidates(uid):
     Returns:
         str answer
     """
-    return get_candidates_for_id(uid)
+    candidate: dict | None = get_candidates_for_id(uid)
+    if candidate is None:
+        return ''
+    return get_candidates([candidate])
 
 
 @app.route('/skills/<skill>/')
@@ -38,7 +42,8 @@ def page_skills(skill):
     Returns:
         str answer
     """
-    return '<pre>\n' + get_candidates_for_skill(skill) + '<pre>'
+    candidates: list[dict] = get_candidates_for_skill(skill)
+    return get_candidates(candidates)
 
 
 if __name__ == '__main__':
